@@ -22,12 +22,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'qz@hq(s!8kr*@z)a=bu#0*juf-&$^g_z-ec-q2x5sdx4!-s&53'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -70,17 +64,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bot.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -118,3 +101,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# FB settings
+with open(".secrets.json") as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    """Get the enviroment variable or return exception."""
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {} enviroment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+
+VERIFICATION_CODE = get_secret('VERIFICATION_CODE')
+FB_TOKEN = get_secret('FB_TOKEN')
