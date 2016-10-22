@@ -1,3 +1,5 @@
+from .base import *
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -13,8 +15,8 @@ MIDDLEWARE += [
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'bot-db',
-        'USER': 'bot-user',
+        'NAME': 'bot_db',
+        'USER': 'bot_user',
         'PASSWORD': 'bot',
         'HOST': '127.0.0.1',
         'PORT': '5432',
