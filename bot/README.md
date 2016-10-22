@@ -20,6 +20,46 @@ macOS
 	cd ~/Life-all-in-one-bot
 	pip install -r reuqirements.txt
 
+### Install Postgresql & Postgis
+
+#### ubuntu
+
+    git cloen https://github.com/FrankYang0529/Install-Postgis.git
+    cd Install-Postgis
+    sudo ./install_postgis.sh
+
+#### macOS
+
+    brew install postgresql
+    brew install postgis
+    brew install gdal
+    brew install libgeoip
+
+### Create user, database & Grant
+
+#### Change to postgres
+
+    sudo su postgres
+
+#### Create user
+
+    createuser -P -e bot_user
+    Enter password for new role: bot
+    Enter it again: bot
+    CREATE ROLE dengue_user PASSWORD ...
+
+#### Create db
+
+    createdb bot_db
+
+#### Grant
+
+    $: psql
+    postgres=# GRANT ALL PRIVILEGES ON DATABASE bot_db TO bot_user;
+    postgres=# \c bot_db;
+    bot_db=# CREATE EXTENSION postgis;
+    CREATE EXTENSION
+
 ### Secret key File
 
 Create ~/Life-all-in-one-bot/bot/.secrets.json
@@ -38,8 +78,7 @@ Create ~/Life-all-in-one-bot/bot/.secrets.json
 
 ### Production Server
 
-    sudo uwsgi --ini bot.ini
-
+    sudo uwsgi --ini bot.ini --touch-reload=/home/ubuntu/Life-all-in-one-bot/bot/bot.ini
 
 ## Stop Server
 
