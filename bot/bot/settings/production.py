@@ -6,7 +6,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 MIDDLEWARE += [
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 # Database
