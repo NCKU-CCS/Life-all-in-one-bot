@@ -10,6 +10,10 @@
 macOS
 
     pyvenv venv
+    
+ubuntu
+
+    virtualenv -p python3 venv
 
 ### Change virtualenv
 
