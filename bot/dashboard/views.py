@@ -11,16 +11,16 @@ class GetTextCloud(APIView):
 		true_list = list()
 		for foo in true_search:
 			tmp = {
-				"keyword": foo.text,
 				"count": foo.number,
+				"keyword": foo.text,
 			}
 			true_list.append(tmp)
 		false_search = TextCloud.objects.filter(flag=False)
 		false_list = list()
 		for foo in false_search:
 			tmp = {
-				"keyword": foo.text,
 				"count": foo.number,
+				"keyword": foo.text,
 			}
 			false_list.append(tmp)
 		req_data = json.dumps({"most": true_list, "lack": false_list})
