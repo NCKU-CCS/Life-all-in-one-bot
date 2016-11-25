@@ -26,10 +26,6 @@ class FBWebhook(View):
                 cut_msg = jieba.cut(message['message']['text'])
                 # print("="*40 + "received message:" + "="*40)
                 # print(cut_msg)
-                res_msg = json.dumps({"recipient": message['sender'],
-                                      "message": {
-                                          "text": ", ".join(jieba.cut(message['message']['text']))
-                                      }})
                 print ("="*40 + "received message" + "="*40)
                 cut_list = list()
                 for foo in cut_msg:
@@ -43,21 +39,33 @@ class FBWebhook(View):
                     if foo in can_ques:
                         flag = True
                         break
-
-                for foo in cut_list:
-                    if foo in useless_dictionary:
-                        continue
+                if flag == True:
+                    for foo in cut_list:
+                        if foo in useless_dictionary:
+                            continue
+                        try:
+                            search_data = TextCloud.objects.get(text=foo)
+                        except:
+                            search_data = TextCloud.objects.create(text=foo, number=0,flag=True)
+                        search_data.number += 1
+                        search_data.save()
+                        print (search_data.text)
+                        print (search_data.number)
+                else:
                     try:
-                        search_data = TextCloud.objects.get(text=foo)
+                        search_data = TextCloud.objects.get(text=message['message']['text'])
                     except:
-                        search_data = TextCloud.objects.create(text=foo, number=0,flag=flag)
+                        search_data = TextCloud.objects.create(text=message['message']['text'], number=0,flag=True)
                     search_data.number += 1
                     search_data.save()
                     print (search_data.text)
                     print (search_data.number)
-                    print("="*40)
                 print ("\n")
                 print ("="*40 + "req.json()" + "="*40)
+                res_msg = json.dumps({"recipient": message['sender'],
+                      "message": {
+                          "text": ", ".join(jieba.cut(message['message']['text']))
+                      }})
                 req = requests.post(post_msg_url,
                                     headers={"Content-Type": "application/json"},
                                     data=res_msg)

@@ -23,5 +23,5 @@ class GetTextCloud(APIView):
 				"count": foo.number,
 			}
 			false_list.append(tmp)
-		req_data = {"most": true_list, "lack": false_list}
+		req_data = json.dumps({"most": true_list, "lack": false_list})
 		return Response(req_data, status=status.HTTP_200_OK)
