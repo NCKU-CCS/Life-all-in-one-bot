@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="zh">
+
+
+<head>
+
+    <title>AFOB</title>
+
+    <!--網頁編碼-->
+    <meta charset="utf-8" />
+
+    <!--RWD相關-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<!--CSS-->
+    <link rel="stylesheet" href='{% static "css/reset.css" %}'/>
+    <link rel="stylesheet" href='{% static "css/style.css" %}'/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+
+</head>
+
+
+
+<body>
+
+<section id="point">
+
+	<div class="frame" id="activeNum">
+		<p>每日活躍人數</p>
+		<div class="f2">
+			<h1>355</h1><h1>人</h1>
+		</div>
+		<div class="f3">
+			<i class="fa fa-caret-up fa-2x"></i><p>3人</p>
+		</div>
+	</div>
+
+	<div class="frame" id="backNum">
+		<p>今日回流人數百分比</p>
+		<div class="f2">
+			<h1>58</h1><h1>%</h1>
+		</div>
+		<div class="f3">
+			<i class="fa fa-caret-down fa-2x"></i><p>5%</p>
+		</div>
+	</div>
+
+	<div class="frame" id="avgTaskNum">
+		<p>平均執行任務數</p>
+		<div class="f2">
+			<h1>2</h1><h1>個</h1>
+		</div>
+		<div class="f3">
+			<i></i><p>-0個</p>
+		</div>
+	</div>
+
+	<div class="frame" id="hotTask">
+		<p>熱門觸發任務</p>
+		<div class="f2">
+			<h1 style="font-size: 7vh;">問天氣</h1><h1></h1>
+		</div>
+		<div class="f3">
+			<i></i><p style="top: 25%;">上一個：問午餐</p>
+		</div>
+	</div>
+
+</section>
+
+	<iframe class="frame" src='{% static "html/line.html" %}' id="line" scrolling="no" frameBorder="0"></iframe>
+	<iframe class="frame" src='{% static "html/cloud.html" %}' id="cloud" scrolling="no" frameBorder="0"></iframe>
+	<iframe class="frame" src='{% static "html/pyramid.html" %}' id="pyramid" scrolling="no" frameBorder="0"></iframe>
+	<iframe class="frame" src='{% static "html/map.html" %}' id="map" scrolling="no" frameBorder="0"></iframe>
+
+    <script src='{% static "library/jquery-3.1.1.min.js" %}'></script>
+    <script src='{% static "library/d3.v3.min.js" %}'></script>
+    <script src='{% static "js/main.js" %}'></script>
+
+</body>
+
+</html>
