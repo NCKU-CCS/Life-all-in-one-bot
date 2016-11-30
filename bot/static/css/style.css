@@ -1,0 +1,124 @@
+/*仿宋體 cwTeXFangSong*/
+/*@import url(http://fonts.googleapis.com/earlyaccess/cwtexfangsong.css);*/
+/*圓體 cwTeXYen*/
+/*@import url(http://fonts.googleapis.com/earlyaccess/cwtexyen.css);*/
+/*黑體 cwTeXHei*/
+/*@import url(http://fonts.googleapis.com/earlyaccess/cwtexhei.css);*/
+/*思源黑體 Noto Sans TC*/
+@import url(https://fonts.googleapis.com/earlyaccess/notosanstc.css);
+
+#point {
+	display:flex;
+	justify-content:center;
+	align-items: center;
+	width: 100vw;
+	height: 27vh;
+}
+
+.frame{
+	font-family: 'Noto Sans TC',sans-serif;
+	background-color: #f5f5f5;
+	border:2px solid #c7c7c7;
+	border-radius: 15px;
+	
+}
+
+#point .frame{
+	width: 15vw;
+	height: 70%;
+	margin: 20px;
+}
+
+#point .frame p:first-child{
+	position: relative;
+	left: 20px;
+	top: 5%;
+	text-align:left;
+	font-size: 2vh;
+	color: rgba(109, 109, 109, 0.92);	
+}
+
+#point .frame .f2{
+	position: relative;
+	left:35px;
+	top: 18%;
+	text-align:left;
+}
+
+#point .frame .f2 h1{
+	display: inline;
+	font-size: 9vh;
+	color: rgba(49, 49, 49, 0.92);
+}
+
+#point .frame .f2 h1:nth-child(2){
+	font-size: 2vh;
+}
+
+#point .frame .f3 {
+	position: relative;
+	left: -30px;
+	top: 16%;
+	text-align:right;
+	font-size: 2vh;
+	color: rgba(109, 109, 109, 0.92);
+}
+
+#point .frame .f3 p:nth-child(2){
+	display: inline;
+	position: relative;
+	left: 0.5vw;
+	top: -0.5vh;
+}
+
+#point .frame:first-child .f3 {
+	color: rgba(91, 173, 88, 0.92);
+}
+
+#point .frame:nth-child(2) .f3 {
+	color: rgba(177, 81, 77, 0.92);
+}
+
+
+#line {
+	display: block;
+	width: 65vw;
+	height: 50vh;
+	margin: 1% 0 1% 16.5%;
+	padding: 1%;
+}
+
+#cloud {
+	width: 27.5vw;
+	height: 40vh;
+	margin: 2% 1% 1% 2%;
+
+}
+
+#pyramid {
+	width: 36vw;
+	height: 40vh;
+	margin: 2% 1% 1% 2%;
+	
+}
+
+#map {
+	display: block;
+	width: 65vw;
+	height: 400px;
+	margin: 1% 0 2% 16.5%;
+	padding: 1%;
+}
+
+
+/*
+#dot {
+	top: 100%;
+	left: 100%;
+	-webkit-transform: translate(-100%, -100%);
+	-moz-transform: translate(-100%, -100%);
+	-ms-transform: translate(-100%, -100%);
+	-o-transform: translate(-100%, -100%);
+	transform: translate(-100%, -100%);
+}
+*/

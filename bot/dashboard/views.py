@@ -1,9 +1,14 @@
 from django.shortcuts import render
+# from rest_framework import viewsets, serializers
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import TextCloud
 import json
+
+def home(request):
+	return render(request, 'index.html')
+
 # Create your views here.
 class GetTextCloud(APIView):
 	def get(self, request):
