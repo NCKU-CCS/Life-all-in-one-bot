@@ -1,0 +1,5 @@
+from django.db import models
+
+class Joke(models.Model):
+	title = models.TextField()
+	context = models.TextField()

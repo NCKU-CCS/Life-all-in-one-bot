@@ -1,0 +1,12 @@
+import json
+
+print("from fb.models import Joke")
+
+with open('/home/mini/djangogirls/Life-all-in-one-bot/bot/fb/joke.json') as data_file:
+	json_data = json.load(data_file)
+
+#for element in json_data:
+	print("Post.objects.create(title='" + json_data[0]['title'] + "', context='"+ json_data[0]['context'] +"')")
+
+
+
