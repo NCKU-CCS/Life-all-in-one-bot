@@ -6,7 +6,11 @@ from pprint import pprint
 from django.conf import settings
 from django.http import HttpResponse
 from django.views import View
-from fb.models import Joke
+from fb.models import Joke, Restaurant
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
+from django.forms.models import model_to_dict
+from django.contrib.gis.db.models.functions import Distance
 
 class FBWebhook(View):
 
@@ -19,11 +23,11 @@ class FBWebhook(View):
                 if message.get('message', '') == '':
                     continue
                 #response_str = certification(message['message']['text'])
-                #response_str = joke()	
-                response_str = location(message['message'])
+                #response_str = joke()
+                response_str = restaurant({'lng':120.222874, 'lat':22.990548})
                 res_msg = json.dumps({"recipient": message['sender'],
                                       "message": {
-                                          "text": "Thank you"
+                                          "text": response_str
                                       }})
                 #print (res_msg)
                 req = requests.post(post_msg_url,
@@ -80,6 +84,24 @@ def location(message):
 	else:
 		return message['attachments'][0]['payload']['coordinates']
 
+
+def restaurant(user_location):
+	lng = user_location['lng']
+	lat = user_location['lat']
+	point = Point(lng, lat, srid=4326)
+	restaurant_set = Restaurant.objects\
+	.exclude(lng=0)\
+	.annotate(distance=Distance('location', point))\
+	.filter(location__distance_lte=(point, D(km=3)))\
+	.order_by('distance')[:5]\
+
+	response_str = str()
+	for x in restaurant_set :
+		s = x.name + "\n" + x.address + "\n\n"
+		response_str = response_str + s
+	
+	return response_str
+	
 
 
 
