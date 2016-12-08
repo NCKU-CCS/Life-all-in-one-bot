@@ -10,6 +10,7 @@ def home(request):
 	return render(request, 'index.html')
 
 # Create your views here.
+# TextCloudAPI
 class GetTextCloud(APIView):
 	def get(self, request):
 		true_search = TextCloud.objects.filter(flag=True)
