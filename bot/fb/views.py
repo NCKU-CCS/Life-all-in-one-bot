@@ -8,9 +8,15 @@ from django.http import HttpResponse
 from django.views import View
 from dashboard.models import TextCloud
 from dashboard.models import FSM
-#from dashboard.models import keyword
 
-#
+import random
+from fb.models import Joke, Restaurant
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
+from django.forms.models import model_to_dict
+from django.contrib.gis.db.models.functions import Distance
+
+
 class FBWebhook(View):
 
     def post(self, request, *args, **kwargs):
