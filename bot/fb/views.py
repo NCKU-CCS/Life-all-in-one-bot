@@ -2,6 +2,10 @@ import json
 import requests
 import random
 import time
+import codecs
+import urllib
+import urllib.request
+
 from pprint import pprint
 from django.conf import settings
 from django.http import HttpResponse
@@ -25,7 +29,8 @@ class FBWebhook(View):
                 #response_str = certification(message['message']['text'])
                 #response_str = joke()
                 #current_time = entry['time']
-                response_str = restaurant({'lng':120.222874, 'lat':22.990548}, 1481200248709)
+                response_str = nearby_place({'lng':120.222874, 'lat':22.990548}, message['message']['text'])
+                #response_str = restaurant({'lng':120.222874, 'lat':22.990548}, 1481200248709)
                 res_msg = json.dumps({"recipient": message['sender'],
                                       "message": {
                                           "text": response_str
@@ -114,7 +119,44 @@ def restaurant(user_location, current_time):
                 response_str = response_str + s
 	
         return response_str
+
+
+def nearby_place(user_location, keyword):
+        params = {
+                'location': (str(user_location['lat']) + ',' + str(user_location['lng'])),
+                'radius' : 1000,
+                'keyword' : keyword,
+                'language' : 'zh-TW',
+                'key' : 'AIzaSyAljxcakDVu_Cbz21iMpUx-4XPYqLGcU-U',
+        }
+        url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' + urllib.parse.urlencode(params)
+        response = urllib.request.urlopen(url)
+        reader = codecs.getreader("utf-8")
+        result = json.load(reader(response))
 	
+        response_str = str()
+        try:
+                result_list = result['results']
+                if len(result_list) >= 3 :
+                        for i in range(0, 3) :
+                                response_str = response_str + result_list[i]['name'] + '\n' + result_list[i]['vicinity'] + '\n\n'
+                else :
+                        for element in result_list :
+                                response_str = response_str + element['name'] + '\n' + element['vicinity'] + '\n\n'
+                return 	response_str	
+        except:
+                return 'not found'
+
+
+
+
+
+
+
+
+
+
+
 
 
 

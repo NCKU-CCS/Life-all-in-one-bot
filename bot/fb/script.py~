@@ -42,7 +42,7 @@ for element in json_data:
 		category = element['category'],
 		lng = coordinates['lng'],
 		lat = coordinates['lat'],
-		loaction = Point(float(coordinates['lng']), float(coordinates['lat']))
+		location = Point(float(coordinates['lng']), float(coordinates['lat']))
 	)
 	restaurant.save()
 
