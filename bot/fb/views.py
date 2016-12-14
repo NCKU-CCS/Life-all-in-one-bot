@@ -2,6 +2,7 @@ import json
 import requests
 import random
 import time
+import math
 import codecs
 import urllib
 import urllib.request
@@ -124,7 +125,7 @@ def restaurant(user_location, current_time):
 def nearby_place(user_location, keyword):
         params = {
                 'location': (str(user_location['lat']) + ',' + str(user_location['lng'])),
-                'radius' : 1000,
+                'rankby' : 'distance',
                 'keyword' : keyword,
                 'language' : 'zh-TW',
                 'key' : 'AIzaSyAljxcakDVu_Cbz21iMpUx-4XPYqLGcU-U',
@@ -137,21 +138,36 @@ def nearby_place(user_location, keyword):
         response_str = str()
         try:
                 result_list = result['results']
+                
                 if len(result_list) >= 3 :
                         for i in range(0, 3) :
-                                response_str = response_str + result_list[i]['name'] + '\n' + result_list[i]['vicinity'] + '\n\n'
+                                lng = result_list[i]['geometry']['location']['lng']
+                                lat = result_list[i]['geometry']['location']['lat']
+                                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
+                                               + str(geo_distance(user_location['lng'], user_location['lat'], lng, lat))\
+                                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
                 else :
                         for element in result_list :
-                                response_str = response_str + element['name'] + '\n' + element['vicinity'] + '\n\n'
+                                lng = result_list[i]['geometry']['location']['lng']
+                                lat = result_list[i]['geometry']['location']['lat']
+                                print(distance(user_location['lng'], user_location['lat'], lng, lat))
+                                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
+                                               + str(geo_distance(user_location['lng'], user_location['lat'], lng, lat))\
+                                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
                 return 	response_str	
         except:
                 return 'not found'
 
 
-
-
-
-
+def geo_distance(lon1, lat1, lon2, lat2):
+        radius = 6371 # km
+        dlat = math.radians(lat2-lat1)
+        dlon = math.radians(lon2-lon1)
+        a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
+            * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        d = float("{0:.3f}".format(radius * c))
+        return int(d*1000)
 
 
 
