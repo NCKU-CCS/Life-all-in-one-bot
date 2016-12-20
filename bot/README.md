@@ -89,3 +89,8 @@ Create ~/Life-all-in-one-bot/bot/.secrets.json
 ### Production Server
 
     sudo killall -s INT uwsgi
+    
+## Database setup
+### Insert data with script after migration
+    echo 'fb.script' | python manage.py shell --settings=bot.settings.local
+    
