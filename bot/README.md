@@ -91,10 +91,8 @@ Create ~/Life-all-in-one-bot/bot/.secrets.json
     sudo killall -s INT uwsgi
     
 ## Database setup
-### Insert data with script after migration
-    echo 'import fb.script' | python manage.py shell --settings=bot.settings.local
-    
-i# file map
+
+# file map
 bot
 |-bot
 |-dashboard: for the frontend dashboard api
@@ -102,11 +100,12 @@ bot
 |-static: for the frontend dashboard setup
 |-templates: for teh frontend dashboard setup
 
-# dashbaord
-
 # fb
 
 ## script.py
+
+### Insert data with script after migration
+    echo 'import fb.script' | python manage.py shell --settings=bot.settings.local
 
 ## views.py
 
