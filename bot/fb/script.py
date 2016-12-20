@@ -16,7 +16,7 @@ def address_to_coordinates(address) :
 	response = urllib.request.urlopen(url)
 	reader = codecs.getreader("utf-8")
 	result = json.load(reader(response))
-
+	x = 0
 	try:
 		return result['results'][0]['geometry']['location']
 	except:

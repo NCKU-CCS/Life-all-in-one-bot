@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head prefix="og: http://ogp.me/ns#">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>template</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		path {
+			cursor: pointer;
+		}
+		
+		#bar {
+			margin-left: 60px;
+		}
+	</style>
+	<!-- libraries-->
+	<script src="../library/jquery-3.1.1.min.js"></script>
+    <script src="../library/d3.v3.min.js"></script>
+	<!-- custom files-->
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+	<script src="https://bost.ocks.org/mike/fisheye/fisheye.js?0.0.3"></script>
+</head>
+
+<body>
+	<svg id="map"></svg>
+	<svg id="bar"></svg>
+
+	<script>
+		$(document).ready(function() {
+			var city = ["臺北市", "嘉義市", "新竹市", "基隆市", "新北市", "桃園市", "臺中市", "彰化縣", "高雄市", "臺南市", "金門縣", "澎湖縣", "雲林縣", "連江縣", "新竹縣", "苗栗縣", "屏東縣", "嘉義縣", "宜蘭縣", "南投縣", "花蓮縣", "臺東縣"];
+
+			var density = {
+				"臺北市": 5,
+				"嘉義市": 7,
+				"新竹市": 9,
+				"基隆市": 12,
+				"新北市": 3,
+				"桃園市": 3,
+				"臺中市": 1,
+				"彰化縣": 0,
+				"高雄市": 2,
+				"臺南市": 20,
+				"金門縣": 12,
+				"澎湖縣": 4,
+				"雲林縣": 5,
+				"連江縣": 0,
+				"新竹縣": 0,
+				"苗栗縣": 1,
+				"屏東縣": 3,
+				"嘉義縣": 4,
+				"宜蘭縣": 7,
+				"南投縣": 3,
+				"花蓮縣": 4,
+				"臺東縣": 4
+			};
+
+			var data = [];
+			for (var i = 0; i < 22; i++) {
+				data.push({
+					"label": city[i],
+					"value": density[city[i]]
+				});
+			}
+			data.sort(function(b, a) {
+				return a.value - b.value;
+			});
+
+			max = d3.max(data, function(d) {
+				return d.value;
+			});
+
+			var color = d3.scale.linear().domain([0, max]).range(["#d6f5f4", "#248f8b"]);
+			var width = 500,
+				height = 400,
+				barHeight = 13,
+				labelWidth = 0;
+			var MapWidth = 400,
+				MapHeight = 400;
+
+			svg = d3.select("#bar")
+				.attr("width", width)
+				.attr("height", height);
+
+			bar = svg.selectAll("g")
+				.data(data)
+				.enter()
+				.append("g");
+
+
+			bar.attr("class", "bar")
+				.attr("cx", 0)
+				.attr("transform", function(d, i) {
+					return "translate(0," + ((i * (barHeight + 6)) + 6) + ")";
+				});
+
+			bar.append("text")
+				.attr("class", "label")
+				.attr("y", barHeight / 2)
+				.attr("dy", ".35em") //vertical align middle
+				.text(function(d) {
+					return d.label + "\t" + d.value + "人";
+				}).each(function() {
+					labelWidth = Math.ceil(Math.max(labelWidth, this.getBBox().width));
+				});
+
+			scale = d3.scale.linear()
+				.domain([0, max])
+				.range([0, width - labelWidth]);
+			bar.append("rect")
+				.attr("id", function(d, i) {
+					return "bar" + d.label
+				})
+				.attr("transform", "translate(" + (labelWidth + 5) + ", 0)")
+				.attr("height", barHeight)
+				.attr("width", function(d) {
+					return scale(d.value);
+				})
+				.style("fill", function(d) {
+					return color(d.value)
+				})
+				.on("mouseover", function(d) {
+					d3.select(this).style("stroke", "yellow");
+					d3.select(this).style("stroke-width", 2);
+					d3.select("#map" + d.label).style("stroke", "yellow");
+					d3.select("#map" + d.label).style("stroke-width", 2);
+				})
+				.on("mouseout", function(d) {
+					d3.select(this).style("stroke", "none");
+					d3.select("#map" + d.label).style("stroke", "none");
+				});
+
+
+
+
+			d3.json("../data/county.json", function(topodata) {
+				var features = topojson.feature(topodata, topodata.objects.county).features;
+				var fisheye = d3.fisheye.circular().radius(100).distortion(2);
+
+				var prj = function(v) {
+					var ret = d3.geo.mercator().center([122, 23.25]).scale(6000)(v);
+					var ret = fisheye({
+						x: ret[0],
+						y: ret[1]
+					});
+					return [ret.x, ret.y];
+				};
+
+				var path = d3.geo.path().projection(prj);
+
+				for (idx = features.length - 1; idx >= 0; idx--) {
+					features[idx].density = density[features[idx].properties.C_Name];
+				}
+
+				d3.select("#map").attr("width", MapWidth).attr("height", MapHeight).selectAll("path").data(features).enter().append("path");
+
+				function update() {
+					d3.select("#map").selectAll("path")
+						.attr("transform", "translate(-70,0)")
+						.attr("id", function(d) {
+							return "map" + d.properties.C_Name
+						})
+						.attr({
+							"d": path,
+							"fill": function(d) {
+								return color(d.density);
+							}
+						}).on("mouseover", function(d) {
+							d3.select(this).style("stroke", "yellow");
+							d3.select(this).style("stroke-width", 2);
+							d3.select("#bar" + d.properties.C_Name).style("stroke", "yellow");
+							d3.select("#bar" + d.properties.C_Name).style("stroke-width", 2);
+						})
+						.on("mouseout", function(d) {
+							d3.select(this).style("stroke", "none");
+							d3.select("#bar" + d.properties.C_Name).style("stroke", "none");
+						});
+				}
+
+				update();
+			});
+		});
+	</script>
+</body>
+
+</html>

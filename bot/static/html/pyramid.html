@@ -1,0 +1,170 @@
+<!DOCTYPE>
+<html lang="zh">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Styles -->
+	<!-- Resources -->
+	<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+	<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+	<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+	<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+	<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+	<style>
+		* {
+			/*邊界、留白歸零*/
+			margin: 0;
+			padding: 0;
+		}
+		
+		#chartdiv {
+			width: 500px;
+			height: 300px;
+			margin-bottom: 2%;
+		}
+		
+		#chartdiv > div > div > a {
+			display: none !important;
+		}
+		
+		#chartdiv > div > div > ul {
+			display: none !important;
+		}
+	</style>
+</head>
+
+<body style="overflow:hidden;">
+	<!-- HTML -->
+	<div id="chartdiv" style="width:100vw;height:100vh;"></div>
+	<!-- Chart code -->
+	<script>
+		data = {
+			"datas": [{
+				"age": ">=76",
+				"male": -4,
+				"female": 3,
+			}, {
+				"age": "61-75",
+				"male": -5,
+				"female": 9,
+			}, {
+				"age": "46-60",
+				"male": -8.6,
+				"female": 8.1,
+			}, {
+				"age": "31-45",
+				"male": -10.9,
+				"female": 10.1,
+			}, {
+				"age": "16-30",
+				"male": -20,
+				"female": 15,
+			}, {
+				"age": "<=15",
+				"male": -9,
+				"female": 11,
+			}],
+			"total": 150
+		};
+
+		var maleP = 0,
+			femaleP = 0;
+
+		data.datas.forEach(function(d) {
+			if (Math.abs(d.male) > maleP) {
+				maleP = Math.abs(d.male)
+			}
+			if (Math.abs(d.female) > femaleP) {
+				femaleP = Math.abs(d.female)
+			}
+		});
+
+		var MP = (maleP / (maleP + femaleP) / 2) * 100 + 2 + "%";
+		var FP = (maleP / (maleP + femaleP) + (femaleP / (maleP + femaleP) / 2)) * 100 + "%";
+
+
+		var chart = AmCharts.makeChart("chartdiv", {
+			"type": "serial",
+			"theme": "light",
+			"rotate": true,
+			"marginBottom": 50,
+			"dataProvider": data.datas,
+			"startDuration": 1,
+			"graphs": [{
+				"fillAlphas": 0.8,
+				"lineAlpha": 0.2,
+				"type": "column",
+				"valueField": "male",
+				"title": "Male",
+				"labelText": "[[value]]",
+				"clustered": false,
+				"labelFunction": function(item) {
+					return Math.abs(item.values.value) + "%";
+				},
+				"balloonFunction": function(item) {
+					return item.category + ": " + Math.abs(item.values.value) + "%";
+				}
+			}, {
+				"fillAlphas": 0.8,
+				"lineAlpha": 0.2,
+				"type": "column",
+				"valueField": "female",
+				"title": "Female",
+				"labelText": "[[value]]",
+				"clustered": false,
+				"labelFunction": function(item) {
+					return Math.abs(item.values.value) + "%";
+				},
+				"balloonFunction": function(item) {
+					return item.category + ": " + Math.abs(item.values.value) + "%";
+				}
+			}],
+			"categoryField": "age",
+			"categoryAxis": {
+				"gridPosition": "start",
+				"gridAlpha": 0.2,
+				"axisAlpha": 0
+			},
+			"valueAxes": [{
+				"gridAlpha": 0,
+				"ignoreAxisWidth": true,
+				"labelFunction": function(value) {
+					//console.log(d);
+					return Math.abs(value) * 0.01 * data.total;
+				},
+				"guides": [{
+					"value": 0,
+					"lineAlpha": 0.2
+				}]
+			}],
+			"balloon": {
+				"fixedPosition": true
+			},
+			"chartCursor": {
+				"valueBalloonsEnabled": false,
+				"cursorAlpha": 0.05,
+				"fullWidth": true
+			},
+			"allLabels": [{
+				"text": "Male",
+				"x": MP,
+				"y": "95%",
+				"bold": true,
+				"align": "middle"
+			}, {
+				"text": "Female",
+				"x": FP,
+				"y": "95%",
+				"bold": true,
+				"align": "middle"
+			}],
+			"export": {
+				"enabled": true
+			}
+
+		});
+	</script>
+</body>
+
+</html>

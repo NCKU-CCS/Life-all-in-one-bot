@@ -1,0 +1,102 @@
+/*針對所有元素*/
+* { 
+    /*邊界、留白歸零*/
+    margin: 0;
+	padding: 0;
+}
+
+body { 
+    /*背景顏色*/
+    background-color:rgba(237, 237, 237, 0.92);
+	
+	/*字體*/
+    font-family: sans-serif;
+	
+	/*動態字體大小*/
+	font-size: 3vh;
+	
+	/*字體顏色*/
+	color: rgba(121, 58, 5, 0.92);
+	
+	/*文字陰影*/
+/*	text-shadow:3px 3px 3px rgba(0, 0, 0, 0.46);*/
+	
+	/*字距*/
+/*	letter-spacing: 0.1em;*/
+	
+	/*行距*/
+	line-height: 1.5em;
+	
+	/*自動換行(切字)*/
+	word-break: break-all;
+	
+	/*自動換行(不切字)*/
+/*	word-wrap:break-word;*/
+	
+	/*文字置中*/
+	text-align:center;
+	
+	/*禁止反白*/
+/*
+	-webkit-user-select: none;
+	-moz-user-select: none;
+*/
+	
+	/*隱藏卷軸*/
+/*	overflow: hidden;*/
+/*	overflow-y: hidden;*/
+    overflow-x:hidden;
+	
+	/*透明度*/
+/*	opacity: 1;*/
+	
+	/*隱藏*/
+/*	visibility:hidden;*/
+	
+	/*砍掉*/
+/*	display:none;*/
+	
+	/*z-index*/
+/*	z-index: 1;*/
+	
+	/*游標圖示*/
+/*	cursor: pointer;*/
+	
+	/*硬體加速二選一(放在需要的位置)*/
+/*
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	transform: translateZ(0);
+*/
+	
+	/*硬體加速二選一(放在需要的位置)*/
+/*
+	-webkit-transform: translate3d(0,0,0);
+	-moz-transform: translate3d(0,0,0);
+	-ms-transform: translate3d(0,0,0);
+	-o-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
+*/
+	
+	/*加速後防閃爍*/
+/*
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+	visibility: hidden;
+*/
+	
+	
+}
+
+
+/*修改反白顏色*/
+::selection {
+	background: rgba(235, 158, 81, 0.9);
+	color: inherit;
+}
+::-moz-selection {
+	background: rgba(235, 158, 81, 0.9);
+	color: inherit;
+}
