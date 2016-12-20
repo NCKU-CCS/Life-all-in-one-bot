@@ -92,5 +92,5 @@ Create ~/Life-all-in-one-bot/bot/.secrets.json
     
 ## Database setup
 ### Insert data with script after migration
-    echo 'fb.script' | python manage.py shell --settings=bot.settings.local
+    echo 'import fb.script' | python manage.py shell --settings=bot.settings.local
     
