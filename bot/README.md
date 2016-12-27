@@ -28,7 +28,7 @@ ubuntu
 
 #### ubuntu
 
-    git cloen https://github.com/FrankYang0529/Install-Postgis.git
+    git clone https://github.com/FrankYang0529/Install-Postgis.git
     cd Install-Postgis
     sudo ./install_postgis.sh
 
@@ -50,7 +50,7 @@ ubuntu
     createuser -P -e bot_user
     Enter password for new role: bot
     Enter it again: bot
-    CREATE ROLE dengue_user PASSWORD ...
+    CREATE ROLE bot_user PASSWORD ...
 
 #### Create db
 
