@@ -24,21 +24,21 @@ def address_to_coordinates(address) :
 		print(result)
 		return {'lng': 0.0, 'lat': 0.0}
 
-#with open('/home/mini/djangogirls/Life-all-in-one-bot/bot/fb/joke.json') as data_file:
-#	json_data = json.load(data_file)
+with open(os.path.join('.','fb','joke.json')) as data_file:
+	json_data = json.load(data_file)
 
-#for element in json_data:
-#	joke = Joke(title=element['title'], context=element['context'])
-#	joke.save()
+for element in json_data:
+	joke = Joke(title=element['title'], context=element['context'])
+	joke.save()
 
 with open(os.path.join('.','fb','台南-東區.json')) as data_file:
 	json_data = json.load(data_file)
 
 for element in json_data:
 	coordinates = address_to_coordinates(element['address'])
-	restaurant = Restaurant( 
-		name = element['name'], 
-		address = element['address'], 
+	restaurant = Restaurant(
+		name = element['name'],
+		address = element['address'],
 		link = element['link'],
 		category = element['category'],
 		lng = coordinates['lng'],
