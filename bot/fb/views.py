@@ -48,7 +48,11 @@ class FBWebhook(View):
                 try:
                     search_id = FSM.objects.get(fb_id=str(message['sender']['id']))
                 except:
-                    search_id = FSM.objects.create(fb_id=str(message['sender']['id']),first_name=sender_info['first_name'],last_name=sender_info['last_name'],gender=True,state=1)
+                    search_id = FSM.objects.create(fb_id=str(message['sender']['id'])
+                                                   ,first_name=sender_info['first_name']
+                                                   ,last_name=sender_info['last_name']
+                                                   ,gender=True
+                                                   ,state=1)
                     if sender_info['gender'] == 'male':
                         search_id.gender = True
                     else:
@@ -85,54 +89,72 @@ class FBWebhook(View):
                             return HttpResponse(status=200)
                         else:
                             continue
-                    #handle the text using jieba
-                    keyword = msg_classify(message['message']['text'])
-                    if(keyword != "trash"):
+                    #user request to search nearby location,
+                    #this message is keyword
+                    if(search_id.state == 4):
+                        search_id.state = 1
+                        search_id.save()
                         res_msg = json.dumps({
-                                "recipient": message['sender'],
-                                "message": {
-                                        "text": msg_reply(keyword,search_id)
-                                    }
-                                })
+                                        "recipient": message['sender'],
+                                        "message": {
+                                            "text":nearby_place(search_id.lat
+                                                                ,search_id.lng
+                                                                ,message['message']['text'])
+                                        }})
+                        pprint (res_msg)
                         req = requests.post(post_msg_url,
                                             headers={"Content-Type": "application/json"},
                                             data=res_msg)
                         return HttpResponse(status=200)
                     else:
-                        res_msg = json.dumps({
+                        #handle the text using jieba
+                        keyword = msg_classify(message['message']['text'])
+                        if(keyword != "trash"):
+                            res_msg = json.dumps({
                                     "recipient": message['sender'],
                                     "message": {
-                                    	"attachment":{
-    										"type":"template",
-    										"payload":{
-    											"template_type":"button",
-    											"text":"嗨,"+ sender_info['first_name'] + "!\n" +
-    													"我是小歐(All in one)，你可以問我關於台南的相關訊息~ \
-    													也歡迎你留下你的建議，讓我能提供的服務更豐富喔",
-    											"buttons":[
-    											  {
-    											    "type":"postback",
-    											    "title": "食物推薦",
-    											    "payload": "food"
-    											  },
-    											  {
-    											    "type":"postback",
-    											    "title":"證件遺失了，救救我",
-    											    "payload":"certification"
-    											  },
-                                                  {
-                                                    "type":"postback",
-                                                    "title":"看看我還能做什麼",
-                                                    "payload":"more"
-                                                  }
-    											]
-    										}
-    									}
-                                    }})
-                        req = requests.post(post_msg_url,
-                                            headers={"Content-Type": "application/json"},
-                                            data=res_msg)
-                        return HttpResponse(status=200)
+                                            "text": msg_reply(keyword,search_id)
+                                        }
+                                    })
+                            req = requests.post(post_msg_url,
+                                                headers={"Content-Type": "application/json"},
+                                                data=res_msg)
+                            return HttpResponse(status=200)
+                        else:
+                            res_msg = json.dumps({
+                                        "recipient": message['sender'],
+                                        "message": {
+                                        	"attachment":{
+        										"type":"template",
+        										"payload":{
+        											"template_type":"button",
+        											"text":"嗨,"+ sender_info['first_name'] + "!\n" +
+        													"我是小歐(All in one)，你可以問我關於台南的相關訊息~ \
+        													也歡迎你留下你的建議，讓我能提供的服務更豐富喔",
+        											"buttons":[
+        											  {
+        											    "type":"postback",
+        											    "title": "食物推薦",
+        											    "payload": "food"
+        											  },
+        											  {
+        											    "type":"postback",
+        											    "title":"證件遺失了，救救我",
+        											    "payload":"certification"
+        											  },
+                                                      {
+                                                        "type":"postback",
+                                                        "title":"看看我還能做什麼",
+                                                        "payload":"more"
+                                                      }
+        											]
+        										}
+        									}
+                                        }})
+                            req = requests.post(post_msg_url,
+                                                headers={"Content-Type": "application/json"},
+                                                data=res_msg)
+                            return HttpResponse(status=200)
                 elif message.get('postback', '') != '':
                     res_msg = payload_classify(message,search_id)
                     req = requests.post(post_msg_url,
@@ -144,7 +166,7 @@ class FBWebhook(View):
         verification_code = settings.VERIFICATION_CODE
         verify_token = request.GET.get('hub.verify_token', '')
         if verification_code != verify_token:
-            print(verify_token)
+            print(verify_toke)
             return HttpResponse(status=400)
 
         return HttpResponse(request.GET.get('hub.challenge', ''), status=200)
@@ -153,14 +175,15 @@ def attachments_deal(message,search_id,current_time):
     if (message['message']['attachments'][0]['type'] == 'fallback'):
         # ignore the fallback attachments
         return False
-    elif (search_id.state != 2):
+    elif (search_id.state != 2 and search_id.state != 3):
         search_id.state = 1
         search_id.save()
         res_json = json.dumps({
                     "recipient": message['sender'],
                     "message": {
-                        "text":"您似乎傳了一個位置給我，但我不明白為何您要傳給我\
-                                如果想要知道附近的美食資訊，請告訴我「美食」再傳送位置"
+                        "text":"您似乎傳了一個附件給我，但我不明白為何您要傳給我\n"+\
+                                "如果想要知道附近的美食資訊，請告訴我「美食」後再傳送位置"+\
+                                "如果想要知道附近的商家資訊，請告訴我「商家」後再傳送位置"
                     }})
         return res_json
     else:
@@ -182,6 +205,30 @@ def attachments_deal(message,search_id,current_time):
                 search_id.state = 1
                 search_id.save()
                 return restaurant(location_detail,current_time)
+        elif (search_id.state==3):
+            location_detail = location(message['message'])
+            if (location_detail == "failed"):
+                search_id.state = 1
+                search_id.save()
+                res_json = json.dumps({
+                            "recipient": message['sender'],
+                            "message": {
+                                "text":"抱歉，我不能解析這個位置"
+                            }})
+                return res_json
+            else :
+                search_id.lng = location_detail['long']
+                search_id.lat = location_detail['lat']
+                search_id.location = Point(float(search_id.lng), float(search_id.lat))
+                search_id.state = 4
+                search_id.save()
+                res_json = json.dumps({
+                            "recipient": message['sender'],
+                            "message": {
+                                "text":"請輸入你想查找的商家關鍵字"
+                            }})
+                return res_json
+            pass
 def payload_classify(message,search_id):
     if (message['postback']['payload'] == 'food'):
         res_json = json.dumps({
@@ -193,6 +240,8 @@ def payload_classify(message,search_id):
         search_id.save()
         return res_json
     elif (message['postback']['payload'] == 'certification'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -207,7 +256,7 @@ def payload_classify(message,search_id):
                                             # "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
                                             "buttons": [{
                                                 "type": "postback",
-                                                "title": "Ask",
+                                                "title": "按我查詢",
                                                 "payload": "ID",
                                             }],
                                         },
@@ -217,7 +266,7 @@ def payload_classify(message,search_id):
                                             # "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
                                             "buttons": [{
                                                 "type": "postback",
-                                                "title": "Ask",
+                                                "title": "按我查詢",
                                                 "payload": "health",
                                             }],
                                         },
@@ -227,7 +276,7 @@ def payload_classify(message,search_id):
                                             # "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
                                             "buttons": [{
                                                 "type": "postback",
-                                                "title": "Ask",
+                                                "title": "按我查詢",
                                                 "payload": "drive",
                                             }],
                                         },
@@ -237,7 +286,7 @@ def payload_classify(message,search_id):
                                             # "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
                                             "buttons": [{
                                                 "type": "postback",
-                                                "title": "Ask",
+                                                "title": "按我查詢",
                                                 "payload": "household",
                                             }],
                                         }
@@ -247,6 +296,8 @@ def payload_classify(message,search_id):
                         }})
         return res_json
     elif (message['postback']['payload'] == 'ID'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -258,6 +309,8 @@ def payload_classify(message,search_id):
         build_text_cloud('身分證')
         return res_json
     elif (message['postback']['payload'] == 'health'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -270,6 +323,8 @@ def payload_classify(message,search_id):
         build_text_cloud('健保卡')
         return res_json
     elif (message['postback']['payload'] == 'drive'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -280,6 +335,8 @@ def payload_classify(message,search_id):
         build_text_cloud('駕照')
         return res_json
     elif (message['postback']['payload'] == 'household'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -289,6 +346,8 @@ def payload_classify(message,search_id):
         build_text_cloud('戶籍謄本')
         return res_json
     elif (message['postback']['payload'] == 'more'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                         "recipient": message['sender'],
                         "message": {
@@ -319,6 +378,8 @@ def payload_classify(message,search_id):
                         }})
         return res_json
     elif (message['postback']['payload'] == 'joke'):
+        search_id.state = 1
+        search_id.save()
         res_json = json.dumps({
                 "recipient": message['sender'],
                 "message": {
@@ -327,8 +388,15 @@ def payload_classify(message,search_id):
         build_text_cloud('笑話')
         return res_json
     elif (message['postback']['payload'] == 'near_location'):
-        #TODO
-        pass
+        res_json = json.dumps({
+                        "recipient": message['sender'],
+                        "message": {
+                            "text": "那麼 請給我您的位置以便查詢附近商家"
+                        }})
+        search_id.state = 3
+        search_id.save()
+        build_text_cloud('商家')
+        return res_json
 
 def msg_reply(keyword,search_id):
     # keyword = msg_classify(message['message']['text'],search_id)
@@ -336,30 +404,41 @@ def msg_reply(keyword,search_id):
         #TODO
         return "none"
     elif (keyword == "food"):
-        search_id.state=2
+        search_id.state = 2
         search_id.save()
         return "那麼 請給我您的位置以便查詢附近商家"
     elif keyword == "joke":
+        search_id.state = 1
+        search_id.save()
         return joke()
     elif keyword == "ID":
+        search_id.state = 1
+        search_id.save()
         return "電話申請掛失請直撥1996內政服務專線提出申請，或是親自前往戶政事務所" +\
                 "。補領身分證須攜帶戶口名簿正本或其他有效證件，" +\
                 "以及正面半身彩色相片一張，還有當事人印章或簽名。"
     elif keyword == "health":
+        search_id.state = 1
+        search_id.save()
         return "申請換補領健保IC卡時，請填寫「請領健保IC卡申請表」" +\
                 "，背面應黏貼身分證或其他身分證明文件正反面影本，" +\
                 "健保卡上如要印有照片+，請貼上合規格照片。" +\
                 "接著請攜帶身分證明文件正本向各地郵局櫃檯、健保局各分局辦理，" +\
                 "工本費200元。"
     elif keyword == "drive":
+        search_id.state = 1
+        search_id.save()
         return "攜帶身分證或其他身分證明文件，以及6個月內正面半身1吋照片兩張，" +\
                 "至監理所辦理，辦理規費200元。"
     elif keyword == 'household':
+        search_id.state = 1
+        search_id.save()
         return "攜帶身分證正本和印章，至任一戶政事務所辦理，" +\
                 "可以申請全戶或個人部份戶籍謄本，每張15元。"
     elif keyword == "near_location":
-        #TODO
-        return "none"
+        search_id.state = 3
+        search_id.save()
+        return "那麼 請給我您的位置以便查詢附近商家"
 
 def msg_classify(msg):
     jieba.set_dictionary('dict.txt.big')
@@ -374,7 +453,9 @@ def msg_classify(msg):
                 '身分證':"ID",
                 '健保卡':"health",
                 '駕照':"drive",
-                '戶籍謄本':"household"}
+                '戶籍謄本':"household",
+                '商家':"near_location"
+                }
     useless_dictionary = ['是','不是','你','?','.','？','。','我','的','想要']
     category = 'trash'
 
@@ -420,7 +501,8 @@ def joke():
     return response_str
 
 def location(message):
-    #TODO should edit to verify with the attachments type
+    #TODO
+    #should edit to verify with the attachments type
     if message['attachments'][0]['payload'].get('coordinates', '') == '':
         return 'failed'
     else:
@@ -428,72 +510,73 @@ def location(message):
 
 
 def restaurant(user_location, current_time):
-        clock = time.gmtime(current_time/1000).tm_hour + 8#should be edited if the time zone is not +8
-        if clock > 24:
-                clock - 24
-        meal_category = str()
-        if clock <= 10:
-                meal_category = "早餐"
-        elif clock <= 15:
-                meal_category = "午餐"
-        else:
-                meal_category = "晚餐"
+    clock = time.gmtime(current_time/1000).tm_hour + 8#should be edited if the time zone is not +8
+    if clock > 24:
+        clock - 24
+    meal_category = str()
+    if clock <= 10:
+        meal_category = "早餐"
+    elif clock <= 15:
+        meal_category = "午餐"
+    else:
+        meal_category = "晚餐"
 
-        lng = user_location['long']
-        lat = user_location['lat']
-        point = Point(lng, lat, srid=4326)
-        restaurant_set = Restaurant.objects\
-        .filter(category__contains=[meal_category])\
-        .exclude(lng=0)\
-        .annotate(distance=Distance('location', point))\
-        .filter(location__distance_lte=(point, D(km=3)))\
-        .order_by('distance')[:5]\
+    lng = user_location['long']
+    lat = user_location['lat']
+    point = Point(lng, lat, srid=4326)
+    restaurant_set = Restaurant.objects\
+    .filter(category__contains=[meal_category])\
+    .exclude(lng=0)\
+    .annotate(distance=Distance('location', point))\
+    .filter(location__distance_lte=(point, D(km=3)))\
+    .order_by('distance')[:5]\
 
-        return restaurant_set
+    return restaurant_set
 
-def nearby_place(user_location, keyword):
-        params = {
-                'location': (str(user_location['lat']) + ',' + str(user_location['long'])),
-                'rankby' : 'distance',
-                'keyword' : keyword,
-                'language' : 'zh-TW',
-                'key' : 'AIzaSyAljxcakDVu_Cbz21iMpUx-4XPYqLGcU-U',
-        }
-        url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' + urllib.parse.urlencode(params)
-        response = urllib.request.urlopen(url)
-        reader = codecs.getreader("utf-8")
-        result = json.load(reader(response))
+def nearby_place(user_lat, user_lng, keyword):
+    params = {
+            'location': (str(user_lat) + ',' + str(user_lng)),
+            'rankby' : 'distance',
+            'keyword' : keyword,
+            'language' : 'zh-TW',
+            'key' : 'AIzaSyAljxcakDVu_Cbz21iMpUx-4XPYqLGcU-U',
+    }
+    url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' + urllib.parse.urlencode(params)
+    response = urllib.request.urlopen(url)
+    reader = codecs.getreader("utf-8")
+    result = json.load(reader(response))
 
-        response_str = str()
-        try:
-                result_list = result['results']
-
-                if len(result_list) >= 3 :
-                        for i in range(0, 3) :
-                                lng = result_list[i]['geometry']['location']['long']
-                                lat = result_list[i]['geometry']['location']['lat']
-                                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
-                                               + str(geo_distance(user_location['lng'], user_location['lat'], lng, lat))\
-                                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
-                else :
-                        for element in result_list :
-                                lng = result_list[i]['geometry']['location']['long']
-                                lat = result_list[i]['geometry']['location']['lat']
-                                print(distance(user_location['long'], user_location['lat'], lng, lat))
-                                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
-                                               + str(geo_distance(user_location['long'], user_location['lat'], lng, lat))\
-                                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
-                return  response_str
-        except:
-                return 'not found'
+    pprint (result)
+    response_str = str()
+    try:
+        result_list = result['results']
+        if len(result_list) >= 3 :
+            for i in range(0, 3) :
+                lng = result_list[i]['geometry']['location']['lng']
+                lat = result_list[i]['geometry']['location']['lat']
+                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
+                               + str(geo_distance(user_lng, user_lat, lng, lat))\
+                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
+        else :
+            for element in result_list :
+                lng = result_list[i]['geometry']['location']['lng']
+                lat = result_list[i]['geometry']['location']['lat']
+                # print(distance(user_lng, user_lat, lng, lat))
+                response_str = response_str + result_list[i]['name'] + ' ( 距離'\
+                               + str(geo_distance(user_lng, user_lat, lng, lat))\
+                               + 'm )' + '\n' + result_list[i]['vicinity'] + '\n\n'
+        return  response_str
+    except Exception as e:
+        print (e)
+        return 'not found'
 
 
 def geo_distance(lon1, lat1, lon2, lat2):
-        radius = 6371 # km
-        dlat = math.radians(lat2-lat1)
-        dlon = math.radians(lon2-lon1)
-        a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
-            * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-        d = float("{0:.3f}".format(radius * c))
-        return int(d*1000)
+    radius = 6371 # km
+    dlat = math.radians(lat2-lat1)
+    dlon = math.radians(lon2-lon1)
+    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
+        * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = float("{0:.3f}".format(radius * c))
+    return int(d*1000)
